@@ -25,6 +25,72 @@ else
   exit 1
 fi
 
+random_hex_32() {
+  if command -v openssl >/dev/null 2>&1; then
+    openssl rand -hex 32
+  elif [[ -r /dev/urandom ]]; then
+    LC_ALL=C tr -dc 'a-f0-9' </dev/urandom | head -c 64
+    echo
+  else
+    echo "cannot generate random key; install openssl" >&2
+    exit 1
+  fi
+}
+
+prompt_value() {
+  local label="$1"
+  local default_value="$2"
+  local value=""
+  if [[ -t 0 ]]; then
+    read -r -p "$label [$default_value]: " value
+  elif [[ -r /dev/tty ]]; then
+    read -r -p "$label [$default_value]: " value </dev/tty
+  fi
+  if [[ -z "$value" ]]; then
+    value="$default_value"
+  fi
+  printf '%s' "$value"
+}
+
+toml_escape() {
+  printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
+}
+
+write_initial_config() {
+  local config_path="$1"
+  local api_default audit_default token_default api_key audit_key eu_token data_dir_toml
+  api_default="$(random_hex_32)"
+  audit_default="$(random_hex_32)"
+  token_default="dG9rZW4tMjAxNw"
+
+  api_key="$(prompt_value "API key" "$api_default")"
+  audit_key="$(prompt_value "Audit HMAC key" "$audit_default")"
+  eu_token="$(prompt_value "EU FSF token" "$token_default")"
+  data_dir_toml="$(toml_escape "$DATA_DIR")"
+
+  cat >"$config_path" <<CONFIG
+http_addr = "127.0.0.1:8080"
+data_dir = "$data_dir_toml"
+api_key = "$(toml_escape "$api_key")"
+audit_hmac_key = "$(toml_escape "$audit_key")"
+compliance_webhook_url = ""
+refresh_interval_seconds = 3600
+stale_list_max_hours = 24
+
+eu_fsf_fetch_enabled = true
+eu_fsf_rss_url = "https://webgate.ec.europa.eu/fsd/fsf/public/rss"
+eu_fsf_url = "https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content"
+eu_fsf_token = "$(toml_escape "$eu_token")"
+
+# Temporary fallback while EUROPA is unavailable. UN SC is not a replacement
+# for the EU FSF compliance source, but it lets the appliance run and test.
+un_sc_fetch_enabled = false
+un_sc_url = "https://scsanctions.un.org/resources/xml/en/name/consolidated.xml"
+CONFIG
+
+  chmod 0600 "$config_path"
+}
+
 OS="$(uname -s)"
 ARCH="$(uname -m)"
 case "$OS:$ARCH" in
@@ -92,8 +158,9 @@ install -m 0755 "$tmp/sanction-screening" "$INSTALL_DIR/sanction-screening"
 install -m 0755 "$tmp/sanction_screen.sh" "$INSTALL_DIR/sanction_screen.sh"
 
 if [[ ! -f "$CONFIG_DIR/config.toml" ]]; then
-  install -m 0600 "$tmp/config.example.toml" "$CONFIG_DIR/config.toml"
-  echo "created $CONFIG_DIR/config.toml; edit API_KEY, AUDIT_HMAC_KEY and EU_FSF_TOKEN before starting" >&2
+  write_initial_config "$CONFIG_DIR/config.toml"
+  echo "created $CONFIG_DIR/config.toml" >&2
+  echo "review compliance_webhook_url and list-source settings before production use" >&2
   exit 0
 fi
 
