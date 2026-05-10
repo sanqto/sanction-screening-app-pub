@@ -1,6 +1,6 @@
-# Sanction Screening API
+# Sanction Screening Server
 
-Self-hosted sanctions screening API for companies that need to screen orders
+Self-hosted sanctions screening server for companies that need to screen orders
 locally before fulfilment. The app exposes a REST API, stores local audit
 evidence in SQLite, and can refresh sanctions lists on a schedule.
 
@@ -11,38 +11,30 @@ code is built from the private development repository.
 ## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/sanqto/sanction-screening-app-pub/main/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/sanqto/sanction-screening-app-pub/main/install.sh | bash
 ```
 
-The installer supports Linux and macOS.
+The installer supports Linux and macOS. By default it installs in user mode and
+does not create a daemon.
 
-On Linux it creates:
+User mode creates:
 
-- `/etc/sanction-screening/config.toml`
-- `/var/lib/sanction-screening/`
-- `/usr/local/bin/sanction-screening`
-- `/usr/local/bin/sanction_screen.sh`
-- a `systemd` service
+- `$HOME/.config/sanction-screening/config.toml`
+- `$HOME/.local/share/sanction-screening/`
+- `$HOME/.local/bin/sanction-screening`
+- `$HOME/.local/bin/sanction_screen.sh`
 
-On macOS it creates:
-
-- `/usr/local/etc/sanction-screening/config.toml`
-- `/usr/local/var/lib/sanction-screening/`
-- `/usr/local/bin/sanction-screening`
-- `/usr/local/bin/sanction_screen.sh`
-- a `launchd` service at `/Library/LaunchDaemons/com.sanqto.sanction-screening.plist`
-
-Edit `/etc/sanction-screening/config.toml`, set secrets and list-source config,
-then rerun the installer or start the service:
+Run the server manually:
 
 ```bash
-sudo systemctl start sanction-screening
+$HOME/.local/bin/sanction-screening refresh --config $HOME/.config/sanction-screening/config.toml
+$HOME/.local/bin/sanction-screening serve --config $HOME/.config/sanction-screening/config.toml
 ```
 
-On macOS, edit `/usr/local/etc/sanction-screening/config.toml` and start with:
+System service install is optional:
 
 ```bash
-sudo launchctl bootstrap system /Library/LaunchDaemons/com.sanqto.sanction-screening.plist
+curl -fsSL https://raw.githubusercontent.com/sanqto/sanction-screening-app-pub/main/install.sh | sudo INSTALL_MODE=system bash
 ```
 
 ## Configure

@@ -6,11 +6,7 @@ GITHUB_REPO="${GITHUB_REPO:-sanqto/sanction-screening-app-pub}"
 BASE_URL="${SANCTION_RELEASE_URL:-}"
 SERVICE_USER="${SERVICE_USER:-sanction-screening}"
 SERVICE_NAME="sanction-screening"
-
-if [[ "${EUID}" -ne 0 ]]; then
-  echo "install.sh must run as root" >&2
-  exit 1
-fi
+INSTALL_MODE="${INSTALL_MODE:-user}"
 
 need() {
   command -v "$1" >/dev/null 2>&1 || { echo "missing required command: $1" >&2; exit 1; }
@@ -106,16 +102,33 @@ esac
 
 case "$OS" in
   Linux)
-    INSTALL_DIR="${INSTALL_DIR:-/usr/local/bin}"
-    CONFIG_DIR="${CONFIG_DIR:-/etc/sanction-screening}"
-    DATA_DIR="${DATA_DIR:-/var/lib/sanction-screening}"
+    if [[ "$INSTALL_MODE" == "system" ]]; then
+      INSTALL_DIR="${INSTALL_DIR:-/usr/local/bin}"
+      CONFIG_DIR="${CONFIG_DIR:-/etc/sanction-screening}"
+      DATA_DIR="${DATA_DIR:-/var/lib/sanction-screening}"
+    else
+      INSTALL_DIR="${INSTALL_DIR:-$HOME/.local/bin}"
+      CONFIG_DIR="${CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/sanction-screening}"
+      DATA_DIR="${DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/sanction-screening}"
+    fi
     ;;
   Darwin)
-    INSTALL_DIR="${INSTALL_DIR:-/usr/local/bin}"
-    CONFIG_DIR="${CONFIG_DIR:-/usr/local/etc/sanction-screening}"
-    DATA_DIR="${DATA_DIR:-/usr/local/var/lib/sanction-screening}"
+    if [[ "$INSTALL_MODE" == "system" ]]; then
+      INSTALL_DIR="${INSTALL_DIR:-/usr/local/bin}"
+      CONFIG_DIR="${CONFIG_DIR:-/usr/local/etc/sanction-screening}"
+      DATA_DIR="${DATA_DIR:-/usr/local/var/lib/sanction-screening}"
+    else
+      INSTALL_DIR="${INSTALL_DIR:-$HOME/.local/bin}"
+      CONFIG_DIR="${CONFIG_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/sanction-screening}"
+      DATA_DIR="${DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/sanction-screening}"
+    fi
     ;;
 esac
+
+if [[ "$INSTALL_MODE" == "system" && "${EUID}" -ne 0 ]]; then
+  echo "system install requires root; rerun with sudo or use default user install" >&2
+  exit 1
+fi
 
 if [[ -z "$BASE_URL" ]]; then
   if [[ -z "$GITHUB_REPO" ]]; then
@@ -146,7 +159,7 @@ curl -fsSLo "$tmp/$artifact.sha256" "$BASE_URL/$artifact.sha256"
 (cd "$tmp" && $SHA256_CMD "$artifact.sha256")
 tar -xzf "$tmp/$artifact" -C "$tmp"
 
-if [[ "$OS" == "Linux" ]]; then
+if [[ "$INSTALL_MODE" == "system" && "$OS" == "Linux" ]]; then
   id "$SERVICE_USER" >/dev/null 2>&1 || useradd --system --home "$DATA_DIR" --shell /usr/sbin/nologin "$SERVICE_USER"
   install -d -m 0755 "$CONFIG_DIR"
   install -d -m 0750 -o "$SERVICE_USER" -g "$SERVICE_USER" "$DATA_DIR"
@@ -161,15 +174,36 @@ if [[ ! -f "$CONFIG_DIR/config.toml" ]]; then
   write_initial_config "$CONFIG_DIR/config.toml"
   echo "created $CONFIG_DIR/config.toml" >&2
   echo "review compliance_webhook_url and list-source settings before production use" >&2
+  echo "" >&2
+  echo "Next:" >&2
+  echo "  $INSTALL_DIR/sanction-screening refresh --config $CONFIG_DIR/config.toml" >&2
+  echo "  $INSTALL_DIR/sanction-screening serve --config $CONFIG_DIR/config.toml" >&2
+  echo "" >&2
+  echo "If $INSTALL_DIR is not in PATH, add it or call the binary with the full path above." >&2
   exit 0
 fi
 
 "$INSTALL_DIR/sanction-screening" refresh --config "$CONFIG_DIR/config.toml"
 
+if [[ "$INSTALL_MODE" != "system" ]]; then
+  echo "sanction-screening installed in user mode" >&2
+  echo "" >&2
+  echo "Run server:" >&2
+  echo "  $INSTALL_DIR/sanction-screening serve --config $CONFIG_DIR/config.toml" >&2
+  echo "" >&2
+  echo "Test:" >&2
+  echo "  curl -sS http://127.0.0.1:8787/healthz" >&2
+  echo "  $INSTALL_DIR/sanction_screen.sh --name \"Ali Darassa\" --dob 1978-09-22 | jq" >&2
+  echo "" >&2
+  echo "To install a system service later:" >&2
+  echo "  curl -fsSL https://raw.githubusercontent.com/${GITHUB_REPO}/main/install.sh | sudo INSTALL_MODE=system bash" >&2
+  exit 0
+fi
+
 if [[ "$OS" == "Linux" ]]; then
   cat >/etc/systemd/system/${SERVICE_NAME}.service <<UNIT
 [Unit]
-Description=Sanction Screening API
+Description=Sanction Screening Server
 After=network-online.target
 Wants=network-online.target
 
