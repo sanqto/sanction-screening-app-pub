@@ -7,6 +7,7 @@ BASE_URL="${SANCTION_RELEASE_URL:-}"
 SERVICE_USER="${SERVICE_USER:-sanction-screening}"
 SERVICE_NAME="sanction-screening"
 INSTALL_MODE="${INSTALL_MODE:-user}"
+START_SERVICE="${START_SERVICE:-0}"
 
 need() {
   command -v "$1" >/dev/null 2>&1 || { echo "missing required command: $1" >&2; exit 1; }
@@ -85,6 +86,56 @@ un_sc_url = "https://scsanctions.un.org/resources/xml/en/name/consolidated.xml"
 CONFIG
 
   chmod 0600 "$config_path"
+}
+
+install_macos_user_launch_agent() {
+  local plist_dir plist
+  plist_dir="$HOME/Library/LaunchAgents"
+  plist="$plist_dir/com.sanqto.sanction-screening.plist"
+  install -d -m 0755 "$plist_dir"
+  cat >"$plist" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.sanqto.sanction-screening</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>$INSTALL_DIR/sanction-screening</string>
+    <string>serve</string>
+    <string>--config</string>
+    <string>$CONFIG_DIR/config.toml</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>$DATA_DIR/sanction-screening.log</string>
+  <key>StandardErrorPath</key>
+  <string>$DATA_DIR/sanction-screening.err</string>
+</dict>
+</plist>
+PLIST
+  chmod 0644 "$plist"
+  launchctl bootout "gui/$(id -u)" "$plist" >/dev/null 2>&1 || true
+  launchctl bootstrap "gui/$(id -u)" "$plist"
+  launchctl enable "gui/$(id -u)/com.sanqto.sanction-screening"
+  echo "macOS LaunchAgent installed and started: $plist" >&2
+}
+
+print_user_next_steps() {
+  echo "Run now:" >&2
+  echo "  $INSTALL_DIR/sanction-screening refresh --config $CONFIG_DIR/config.toml" >&2
+  echo "  $INSTALL_DIR/sanction-screening serve --config $CONFIG_DIR/config.toml" >&2
+  echo "" >&2
+  if [[ "$OS" == "Darwin" ]]; then
+    echo "macOS service at login, no sudo:" >&2
+    echo "  curl -fsSL https://raw.githubusercontent.com/${GITHUB_REPO}/main/install.sh | START_SERVICE=1 bash" >&2
+    echo "" >&2
+  fi
+  echo "If $INSTALL_DIR is not in PATH, add it or call the binary with the full path above." >&2
 }
 
 OS="$(uname -s)"
@@ -175,22 +226,23 @@ if [[ ! -f "$CONFIG_DIR/config.toml" ]]; then
   echo "created $CONFIG_DIR/config.toml" >&2
   echo "review compliance_webhook_url and list-source settings before production use" >&2
   echo "" >&2
-  echo "Next:" >&2
-  echo "  $INSTALL_DIR/sanction-screening refresh --config $CONFIG_DIR/config.toml" >&2
-  echo "  $INSTALL_DIR/sanction-screening serve --config $CONFIG_DIR/config.toml" >&2
-  echo "" >&2
-  echo "If $INSTALL_DIR is not in PATH, add it or call the binary with the full path above." >&2
+  if [[ "$INSTALL_MODE" != "system" && "$OS" == "Darwin" && "$START_SERVICE" == "1" ]]; then
+    "$INSTALL_DIR/sanction-screening" refresh --config "$CONFIG_DIR/config.toml"
+    install_macos_user_launch_agent
+  fi
+  print_user_next_steps
   exit 0
 fi
 
 "$INSTALL_DIR/sanction-screening" refresh --config "$CONFIG_DIR/config.toml"
 
 if [[ "$INSTALL_MODE" != "system" ]]; then
+  if [[ "$OS" == "Darwin" && "$START_SERVICE" == "1" ]]; then
+    install_macos_user_launch_agent
+  fi
   echo "sanction-screening installed in user mode" >&2
   echo "" >&2
-  echo "Run server:" >&2
-  echo "  $INSTALL_DIR/sanction-screening serve --config $CONFIG_DIR/config.toml" >&2
-  echo "" >&2
+  print_user_next_steps
   echo "Test:" >&2
   echo "  curl -sS http://127.0.0.1:8787/healthz" >&2
   echo "  $INSTALL_DIR/sanction_screen.sh --name \"Ali Darassa\" --dob 1978-09-22 | jq" >&2
