@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "Sanction Screening Server API",
-    "version": "0.1.3"
+    "title": "Sanction Screening API",
+    "version": "0.1.4"
   },
   "paths": {
     "/healthz": {
@@ -43,6 +43,13 @@
                   "citizenship": {"type": "string"},
                   "external_ref": {"type": "string"}
                 }
+              },
+              "example": {
+                "first_name": "Ali",
+                "last_name": "Darassa",
+                "dob": "1978-09-22",
+                "citizenship": "",
+                "external_ref": "demo-match-001"
               }
             }
           }
