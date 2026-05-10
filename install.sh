@@ -59,17 +59,17 @@ toml_escape() {
 write_initial_config() {
   local config_path="$1"
   local api_default audit_default token_default api_key audit_key eu_token data_dir_toml
-  api_default="$(random_hex_32)"
+  api_default=""
   audit_default="$(random_hex_32)"
   token_default="dG9rZW4tMjAxNw"
 
-  api_key="$(prompt_value "API key" "$api_default")"
+  api_key="$(prompt_value "API key (empty disables auth)" "$api_default")"
   audit_key="$(prompt_value "Audit HMAC key" "$audit_default")"
   eu_token="$(prompt_value "EU FSF token" "$token_default")"
   data_dir_toml="$(toml_escape "$DATA_DIR")"
 
   cat >"$config_path" <<CONFIG
-http_addr = "127.0.0.1:8080"
+http_addr = "127.0.0.1:8787"
 data_dir = "$data_dir_toml"
 api_key = "$(toml_escape "$api_key")"
 audit_hmac_key = "$(toml_escape "$audit_key")"
@@ -77,14 +77,14 @@ compliance_webhook_url = ""
 refresh_interval_seconds = 3600
 stale_list_max_hours = 24
 
-eu_fsf_fetch_enabled = true
+eu_fsf_fetch_enabled = false
 eu_fsf_rss_url = "https://webgate.ec.europa.eu/fsd/fsf/public/rss"
 eu_fsf_url = "https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content"
 eu_fsf_token = "$(toml_escape "$eu_token")"
 
 # Temporary fallback while EUROPA is unavailable. UN SC is not a replacement
 # for the EU FSF compliance source, but it lets the appliance run and test.
-un_sc_fetch_enabled = false
+un_sc_fetch_enabled = true
 un_sc_url = "https://scsanctions.un.org/resources/xml/en/name/consolidated.xml"
 CONFIG
 

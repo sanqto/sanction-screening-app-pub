@@ -54,7 +54,9 @@ openssl rand -hex 32
 openssl rand -hex 32
 ```
 
-Set the first value as `api_key` and the second as `audit_hmac_key`.
+Set `api_key` if you want the API to require `X-API-Key`. Leave it empty for
+local deployments without API-key auth. Set the generated second value as
+`audit_hmac_key`.
 
 For EU FSF production use, configure a real EU FSF token:
 
@@ -76,8 +78,6 @@ un_sc_url = "https://scsanctions.un.org/resources/xml/en/name/consolidated.xml"
 ## Test API
 
 ```bash
-export SANCTION_API_KEY="value-from-config"
-
 sanction_screen.sh --name "Ali Darassa" --dob 1978-09-22 | jq
 sanction_screen.sh --name "Ali Darassa" | jq
 ```

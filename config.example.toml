@@ -1,17 +1,17 @@
-http_addr = "127.0.0.1:8080"
+http_addr = "127.0.0.1:8787"
 data_dir = "./data"
-api_key = "change-me-api-key"
+api_key = ""
 audit_hmac_key = "change-me-32-byte-audit-hmac-key"
 compliance_webhook_url = ""
 refresh_interval_seconds = 3600
 stale_list_max_hours = 24
 
-eu_fsf_fetch_enabled = true
+eu_fsf_fetch_enabled = false
 eu_fsf_rss_url = "https://webgate.ec.europa.eu/fsd/fsf/public/rss"
 eu_fsf_url = "https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content"
-eu_fsf_token = "set-real-customer-token"
+eu_fsf_token = "dG9rZW4tMjAxNw"
 
 # Temporary fallback while EUROPA is unavailable. UN SC is not a replacement
 # for the EU FSF compliance source, but it lets the appliance run and test.
-un_sc_fetch_enabled = false
+un_sc_fetch_enabled = true
 un_sc_url = "https://scsanctions.un.org/resources/xml/en/name/consolidated.xml"
