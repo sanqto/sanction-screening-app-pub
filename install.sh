@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="${VERSION:-0.1.0}"
+VERSION="${VERSION:-latest}"
 GITHUB_REPO="${GITHUB_REPO:-sanqto/sanction-screening-app-pub}"
 BASE_URL="${SANCTION_RELEASE_URL:-}"
 SERVICE_USER="${SERVICE_USER:-sanction-screening}"
@@ -56,7 +56,18 @@ if [[ -z "$BASE_URL" ]]; then
     echo "set GITHUB_REPO=owner/repo or SANCTION_RELEASE_URL=https://..." >&2
     exit 2
   fi
-  BASE_URL="https://github.com/${GITHUB_REPO}/releases/download/v${VERSION}"
+  if [[ "$VERSION" == "latest" ]]; then
+    latest_url="$(curl -fsSIL -o /dev/null -w '%{url_effective}' "https://github.com/${GITHUB_REPO}/releases/latest")"
+    tag="${latest_url##*/}"
+    if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+      echo "could not resolve latest release tag from $latest_url" >&2
+      exit 2
+    fi
+    VERSION="${tag#v}"
+  else
+    tag="v${VERSION}"
+  fi
+  BASE_URL="https://github.com/${GITHUB_REPO}/releases/download/${tag}"
 fi
 
 tmp="$(mktemp -d)"
