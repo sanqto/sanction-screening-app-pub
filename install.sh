@@ -30,7 +30,10 @@ ARCH="$(uname -m)"
 case "$OS:$ARCH" in
   Linux:x86_64) TARGET="${TARGET:-x86_64-unknown-linux-gnu}" ;;
   Linux:aarch64|Linux:arm64) TARGET="${TARGET:-aarch64-unknown-linux-gnu}" ;;
-  Darwin:x86_64) TARGET="${TARGET:-x86_64-apple-darwin}" ;;
+  Darwin:x86_64)
+    echo "macOS Intel is not published yet; set TARGET=x86_64-apple-darwin only if you uploaded that artifact manually" >&2
+    exit 1
+    ;;
   Darwin:arm64|Darwin:aarch64) TARGET="${TARGET:-aarch64-apple-darwin}" ;;
   *) echo "unsupported platform: $OS $ARCH" >&2; exit 1 ;;
 esac

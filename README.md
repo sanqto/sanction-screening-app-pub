@@ -104,8 +104,6 @@ GitHub Releases should contain:
 - `sanction-screening-<version>-x86_64-unknown-linux-gnu.tar.gz.sha256`
 - `sanction-screening-<version>-aarch64-unknown-linux-gnu.tar.gz`
 - `sanction-screening-<version>-aarch64-unknown-linux-gnu.tar.gz.sha256`
-- `sanction-screening-<version>-x86_64-apple-darwin.tar.gz`
-- `sanction-screening-<version>-x86_64-apple-darwin.tar.gz.sha256`
 - `sanction-screening-<version>-aarch64-apple-darwin.tar.gz`
 - `sanction-screening-<version>-aarch64-apple-darwin.tar.gz.sha256`
 
