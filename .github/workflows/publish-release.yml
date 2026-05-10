@@ -1,0 +1,47 @@
+name: Publish Release Assets
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version without v prefix, e.g. 0.1.0"
+        required: true
+      source_run_id:
+        description: "Optional private repo workflow run id containing artifacts"
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show expected assets
+        run: |
+          cat <<EOF
+          Upload or attach release assets named:
+          sanction-screening-${{ inputs.version }}-x86_64-unknown-linux-gnu.tar.gz
+          sanction-screening-${{ inputs.version }}-x86_64-unknown-linux-gnu.tar.gz.sha256
+          sanction-screening-${{ inputs.version }}-aarch64-unknown-linux-gnu.tar.gz
+          sanction-screening-${{ inputs.version }}-aarch64-unknown-linux-gnu.tar.gz.sha256
+          EOF
+
+      - name: Create release shell
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.version }}
+          name: v${{ inputs.version }}
+          body: |
+            Sanction Screening API v${{ inputs.version }}
+
+            Install:
+
+            ```bash
+            curl -fsSL https://raw.githubusercontent.com/sanqto/sanction-screening-app-pub/main/install.sh | sudo bash
+            ```
+          draft: false
+          prerelease: false
