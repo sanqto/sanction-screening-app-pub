@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Sanction Screening API",
-    "version": "0.1.4"
+    "version": "0.1.6"
   },
   "paths": {
     "/healthz": {
@@ -56,7 +56,36 @@
         },
         "responses": {
           "200": {
-            "description": "MATCH, POSSIBLE, or CLEAR decision with pinned list_versions for audit evidence"
+            "description": "MATCH, POSSIBLE, or CLEAR decision with pinned list_versions. Each source includes updated_at, fetched_at, source_version, and content_sha256 for audit evidence.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "decision": "MATCH",
+                  "request_id": "ea5b2339-dff9-43e0-af99-c6f84ac9471f",
+                  "matched_source": "EU_FSF",
+                  "matched_entity_id": 8053,
+                  "dob_precision": "date",
+                  "list_versions": {
+                    "eu": {
+                      "updated_at": "Fri, 08 May 2026 14:10:10 GMT",
+                      "fetched_at": "2026-05-11T08:51:14.910876+00:00",
+                      "source_version": "1252222B875D684D0C853F9B313301F6C14AAFB5",
+                      "content_sha256": "d8c16cf7e12b29d57979b264efe5c11e48bc791ea8609e9116942dc79bfa2619",
+                      "archive_path": "/Users/alex/.local/share/sanction-screening/list-archive/EU_FSF/20260511T085114Z-d8c16cf7e12b29d5.xml"
+                    },
+                    "un": {
+                      "updated_at": "2026-05-09T23:00:02.101Z",
+                      "fetched_at": "2026-05-11T08:51:17.176560+00:00",
+                      "source_version": "2026-05-09T23:00:02.101Z",
+                      "content_sha256": "51e414dd23e84cf63917374197c3a74c353cb578bb55e3a6469d87bfc06e286c",
+                      "archive_path": "/Users/alex/.local/share/sanction-screening/list-archive/UN_SC/20260511T085117Z-51e414dd23e84cf6.xml"
+                    }
+                  },
+                  "list_version": "1252222B875D684D0C853F9B313301F6C14AAFB5",
+                  "algorithm_version": "person-dob-strict-v1"
+                }
+              }
+            }
           },
           "401": {"description": "Unauthorized"},
           "422": {"description": "Invalid screening input"}

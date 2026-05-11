@@ -1,5 +1,8 @@
 http_addr = "127.0.0.1:8787"
 data_dir = "./data"
+# Optional. Defaults to "<data_dir>/list-archive". Use a backed-up or WORM
+# volume in production if you need immutable source-list evidence.
+list_archive_dir = "./data/list-archive"
 api_key = ""
 audit_hmac_key = "change-me-32-byte-audit-hmac-key"
 compliance_webhook_url = ""

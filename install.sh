@@ -55,7 +55,7 @@ toml_escape() {
 
 write_initial_config() {
   local config_path="$1"
-  local api_default audit_default token_default api_key audit_key eu_token data_dir_toml
+  local api_default audit_default token_default api_key audit_key eu_token data_dir_toml archive_dir_toml
   api_default=""
   audit_default="$(random_hex_32)"
   token_default="dG9rZW4tMjAxNw"
@@ -64,10 +64,12 @@ write_initial_config() {
   audit_key="$(prompt_value "Audit HMAC key" "$audit_default")"
   eu_token="$(prompt_value "EU FSF token" "$token_default")"
   data_dir_toml="$(toml_escape "$DATA_DIR")"
+  archive_dir_toml="$(toml_escape "${LIST_ARCHIVE_DIR:-$DATA_DIR/list-archive}")"
 
   cat >"$config_path" <<CONFIG
 http_addr = "127.0.0.1:8787"
 data_dir = "$data_dir_toml"
+list_archive_dir = "$archive_dir_toml"
 api_key = "$(toml_escape "$api_key")"
 audit_hmac_key = "$(toml_escape "$audit_key")"
 compliance_webhook_url = ""
