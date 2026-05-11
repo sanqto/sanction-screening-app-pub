@@ -18,7 +18,7 @@
       "get": {
         "responses": {
           "200": {
-            "description": "EU FSF list loaded and fresh"
+            "description": "All enabled sanctions sources are loaded and fresh"
           },
           "503": {
             "description": "Not ready"
