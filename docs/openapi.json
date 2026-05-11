@@ -81,7 +81,6 @@
                       "archive_path": "/Users/alex/.local/share/sanction-screening/list-archive/UN_SC/20260511T085117Z-51e414dd23e84cf6.xml"
                     }
                   },
-                  "list_version": "1252222B875D684D0C853F9B313301F6C14AAFB5",
                   "algorithm_version": "person-dob-strict-v1"
                 }
               }
