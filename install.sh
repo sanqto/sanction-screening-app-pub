@@ -85,6 +85,11 @@ eu_fsf_token = "$(toml_escape "$eu_token")"
 # for the EU FSF compliance source, but it lets the appliance run and test.
 un_sc_fetch_enabled = true
 un_sc_url = "https://scsanctions.un.org/resources/xml/en/name/consolidated.xml"
+
+# Polish national sanctions list normalized by Sanqto from the official MSWiA
+# XLSX. This source is required for Polish companies.
+pl_mswia_fetch_enabled = true
+pl_mswia_url = "https://sanqto.com/download/lista-sankcyjna-MSWiA.xml"
 CONFIG
 
   chmod 0600 "$config_path"

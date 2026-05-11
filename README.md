@@ -67,6 +67,13 @@ un_sc_fetch_enabled = true
 un_sc_url = "https://scsanctions.un.org/resources/xml/en/name/consolidated.xml"
 ```
 
+For Polish companies, keep the Polish MSWiA source enabled:
+
+```toml
+pl_mswia_fetch_enabled = true
+pl_mswia_url = "https://sanqto.com/download/lista-sankcyjna-MSWiA.xml"
+```
+
 ## Test API
 
 ```bash
