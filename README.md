@@ -11,7 +11,7 @@ code is built from the private development repository.
 ## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/sanqto/sanction-screening-app-pub/main/install.sh | bash
+curl -fsSL https://sanqto.com/install.sh | bash
 ```
 
 The installer supports Linux and macOS. By default it installs in user mode and
@@ -34,7 +34,7 @@ $HOME/.local/bin/sanction-screening serve --config $HOME/.config/sanction-screen
 System service install is optional:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/sanqto/sanction-screening-app-pub/main/install.sh | sudo INSTALL_MODE=system bash
+curl -fsSL https://sanqto.com/install.sh | sudo INSTALL_MODE=system bash
 ```
 
 ## Configure

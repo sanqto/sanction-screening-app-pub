@@ -134,7 +134,7 @@ print_user_next_steps() {
   echo "" >&2
   if [[ "$OS" == "Darwin" ]]; then
     echo "macOS service at login, no sudo:" >&2
-    echo "  curl -fsSL https://raw.githubusercontent.com/${GITHUB_REPO}/main/install.sh | START_SERVICE=1 bash" >&2
+    echo "  curl -fsSL https://sanqto.com/install.sh | START_SERVICE=1 bash" >&2
     echo "" >&2
   fi
   echo "If $INSTALL_DIR is not in PATH, add it or call the binary with the full path above." >&2
@@ -250,7 +250,7 @@ if [[ "$INSTALL_MODE" != "system" ]]; then
   echo "  $INSTALL_DIR/sanction_screen.sh --name \"Ali Darassa\" --dob 1978-09-22 | jq" >&2
   echo "" >&2
   echo "To install a system service later:" >&2
-  echo "  curl -fsSL https://raw.githubusercontent.com/${GITHUB_REPO}/main/install.sh | sudo INSTALL_MODE=system bash" >&2
+  echo "  curl -fsSL https://sanqto.com/install.sh | sudo INSTALL_MODE=system bash" >&2
   exit 0
 fi
 

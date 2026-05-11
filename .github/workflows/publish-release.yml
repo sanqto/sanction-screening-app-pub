@@ -41,13 +41,13 @@ jobs:
             Install:
 
             ```bash
-            curl -fsSL https://raw.githubusercontent.com/sanqto/sanction-screening-app-pub/main/install.sh | bash
+            curl -fsSL https://sanqto.com/install.sh | bash
             ```
 
             Optional system service install:
 
             ```bash
-            curl -fsSL https://raw.githubusercontent.com/sanqto/sanction-screening-app-pub/main/install.sh | sudo INSTALL_MODE=system bash
+            curl -fsSL https://sanqto.com/install.sh | sudo INSTALL_MODE=system bash
             ```
           draft: false
           prerelease: false
