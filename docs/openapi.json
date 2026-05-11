@@ -18,7 +18,35 @@
       "get": {
         "responses": {
           "200": {
-            "description": "All enabled sanctions sources are loaded and fresh"
+            "description": "All enabled sanctions sources are loaded and fresh",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "ready",
+                  "entity_count": 5124,
+                  "entity_counts": {
+                    "eu": 4392,
+                    "un": 732
+                  },
+                  "list_versions": {
+                    "eu": {
+                      "updated_at": "Fri, 08 May 2026 14:10:10 GMT",
+                      "fetched_at": "2026-05-11T14:33:29.550004+00:00",
+                      "source_version": "1252222B875D684D0C853F9B313301F6C14AAFB5",
+                      "content_sha256": "d8c16cf7e12b29d57979b264efe5c11e48bc791ea8609e9116942dc79bfa2619",
+                      "archive_path": "/Users/alex/.local/share/sanction-screening/list-archive/EU_FSF/20260511T143329Z-d8c16cf7e12b29d5.xml"
+                    },
+                    "un": {
+                      "updated_at": "2026-05-09T23:00:02.101Z",
+                      "fetched_at": "2026-05-11T14:33:31.896727+00:00",
+                      "source_version": "2026-05-09T23:00:02.101Z",
+                      "content_sha256": "51e414dd23e84cf63917374197c3a74c353cb578bb55e3a6469d87bfc06e286c",
+                      "archive_path": "/Users/alex/.local/share/sanction-screening/list-archive/UN_SC/20260511T143331Z-51e414dd23e84cf6.xml"
+                    }
+                  }
+                }
+              }
+            }
           },
           "503": {
             "description": "Not ready"
