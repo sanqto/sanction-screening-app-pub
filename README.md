@@ -74,6 +74,13 @@ pl_mswia_fetch_enabled = true
 pl_mswia_url = "https://sanqto.com/download/lista-sankcyjna-MSWiA.xml"
 ```
 
+For UK screening, keep the UK FCDO source enabled:
+
+```toml
+uk_fcdo_fetch_enabled = true
+uk_fcdo_url = "https://sanctionslist.fcdo.gov.uk/docs/UK-Sanctions-List.xml"
+```
+
 ## Test API
 
 ```bash
