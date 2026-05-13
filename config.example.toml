@@ -24,7 +24,7 @@ un_sc_url = "https://scsanctions.un.org/resources/xml/en/name/consolidated.xml"
 pl_mswia_fetch_enabled = true
 pl_mswia_url = "https://sanqto.com/download/lista-sankcyjna-MSWiA.xml"
 
-# UK FCDO UK Sanctions List. Only Individual designations are loaded for
-# natural-person screening.
+# UK FCDO UK Sanctions List XML. Only IndividualEntityShip=Individual
+# designations are loaded for natural-person screening.
 uk_fcdo_fetch_enabled = true
 uk_fcdo_url = "https://sanctionslist.fcdo.gov.uk/docs/UK-Sanctions-List.xml"
