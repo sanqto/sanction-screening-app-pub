@@ -34,7 +34,7 @@ $HOME/.local/bin/sanction-screening serve --config $HOME/.config/sanction-screen
 Run a one-shot screen without starting the REST API:
 
 ```bash
-$HOME/.local/bin/sanction-screening screen \
+$HOME/.local/bin/sanction-screening check \
   --config $HOME/.config/sanction-screening/config.toml \
   --name "Ali Darassa" \
   --dob 1978-09-22 | jq
