@@ -156,13 +156,31 @@ print_user_next_steps() {
 }
 
 run_demo_match() {
+  local status
   echo "" >&2
   echo "Demo one-shot MATCH check:" >&2
-  echo "  $INSTALL_DIR/sanction-screening check --config $CONFIG_DIR/config.toml --name \"Ali Darassa\" --dob 1978-09-22 | jq" >&2
-  if "$INSTALL_DIR/sanction-screening" check \
-    --config "$CONFIG_DIR/config.toml" \
-    --name "Ali Darassa" \
-    --dob 1978-09-22; then
+  if command -v jq >/dev/null 2>&1; then
+    echo "  $INSTALL_DIR/sanction-screening check --config $CONFIG_DIR/config.toml --name \"Ali Darassa\" --dob 1978-09-22 | jq -C" >&2
+    if "$INSTALL_DIR/sanction-screening" check \
+      --config "$CONFIG_DIR/config.toml" \
+      --name "Ali Darassa" \
+      --dob 1978-09-22 | jq -C; then
+      status=0
+    else
+      status=$?
+    fi
+  else
+    echo "  $INSTALL_DIR/sanction-screening check --config $CONFIG_DIR/config.toml --name \"Ali Darassa\" --dob 1978-09-22" >&2
+    if "$INSTALL_DIR/sanction-screening" check \
+      --config "$CONFIG_DIR/config.toml" \
+      --name "Ali Darassa" \
+      --dob 1978-09-22; then
+      status=0
+    else
+      status=$?
+    fi
+  fi
+  if [[ "$status" == "0" ]]; then
     echo "" >&2
   else
     echo "warning: demo MATCH check failed; run it again after refreshing lists" >&2
