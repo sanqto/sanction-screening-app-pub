@@ -150,6 +150,29 @@ print_user_next_steps() {
   echo "If $INSTALL_DIR is not in PATH, add it or call the binary with the full path above." >&2
 }
 
+run_demo_match() {
+  echo "" >&2
+  echo "Demo one-shot MATCH check:" >&2
+  echo "  $INSTALL_DIR/sanction-screening check --config $CONFIG_DIR/config.toml --name \"Ali Darassa\" --dob 1978-09-22 | jq" >&2
+  if "$INSTALL_DIR/sanction-screening" check \
+    --config "$CONFIG_DIR/config.toml" \
+    --name "Ali Darassa" \
+    --dob 1978-09-22; then
+    echo "" >&2
+  else
+    echo "warning: demo MATCH check failed; run it again after refreshing lists" >&2
+    echo "" >&2
+  fi
+}
+
+refresh_and_demo() {
+  if "$INSTALL_DIR/sanction-screening" refresh --config "$CONFIG_DIR/config.toml"; then
+    run_demo_match
+  else
+    echo "warning: initial sanctions list refresh failed; run refresh manually before screening" >&2
+  fi
+}
+
 OS="$(uname -s)"
 ARCH="$(uname -m)"
 case "$OS:$ARCH" in
@@ -238,15 +261,15 @@ if [[ ! -f "$CONFIG_DIR/config.toml" ]]; then
   echo "created $CONFIG_DIR/config.toml" >&2
   echo "review compliance_webhook_url and list-source settings before production use" >&2
   echo "" >&2
+  refresh_and_demo
   if [[ "$INSTALL_MODE" != "system" && "$OS" == "Darwin" && "$START_SERVICE" == "1" ]]; then
-    "$INSTALL_DIR/sanction-screening" refresh --config "$CONFIG_DIR/config.toml"
     install_macos_user_launch_agent
   fi
   print_user_next_steps
   exit 0
 fi
 
-"$INSTALL_DIR/sanction-screening" refresh --config "$CONFIG_DIR/config.toml"
+refresh_and_demo
 
 if [[ "$INSTALL_MODE" != "system" ]]; then
   if [[ "$OS" == "Darwin" && "$START_SERVICE" == "1" ]]; then
@@ -257,7 +280,7 @@ if [[ "$INSTALL_MODE" != "system" ]]; then
   print_user_next_steps
   echo "Test:" >&2
   echo "  curl -sS http://127.0.0.1:8787/healthz" >&2
-  echo "  $INSTALL_DIR/sanction_screen.sh --name \"Ali Darassa\" --dob 1978-09-22 | jq" >&2
+  echo "  $INSTALL_DIR/sanction-screening check --config $CONFIG_DIR/config.toml --name \"Ali Darassa\" --dob 1978-09-22 | jq" >&2
   echo "" >&2
   echo "To install a system service later:" >&2
   echo "  curl -fsSL https://sanqto.com/install.sh | sudo INSTALL_MODE=system bash" >&2
