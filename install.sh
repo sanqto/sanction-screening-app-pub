@@ -199,7 +199,45 @@ run_demo_match() {
 }
 
 refresh_lists() {
-  if "$INSTALL_DIR/sanction-screening" refresh --config "$CONFIG_DIR/config.toml"; then
+  local log_file pid status spinner i elapsed
+  log_file="$(mktemp)"
+  spinner='-\|/'
+  i=0
+  elapsed=0
+
+  echo "Downloading sanctions lists: EU FSF, UN SC, PL MSWiA, UK FCDO." >&2
+  echo "This can take a little while on first install." >&2
+
+  "$INSTALL_DIR/sanction-screening" refresh --config "$CONFIG_DIR/config.toml" >"$log_file" 2>&1 &
+  pid=$!
+
+  if [[ -t 2 ]]; then
+    while kill -0 "$pid" >/dev/null 2>&1; do
+      printf "\r%c downloading sanctions lists... %ss" "${spinner:$((i % ${#spinner})):1}" "$elapsed" >&2
+      i=$((i + 1))
+      sleep 1
+      elapsed=$((elapsed + 1))
+    done
+    printf "\r%80s\r" "" >&2
+  else
+    while kill -0 "$pid" >/dev/null 2>&1; do
+      printf "." >&2
+      sleep 2
+    done
+    echo "" >&2
+  fi
+
+  if wait "$pid"; then
+    status=0
+  else
+    status=$?
+  fi
+
+  cat "$log_file" >&2
+  rm -f "$log_file"
+
+  if [[ "$status" == "0" ]]; then
+    echo "sanctions list refresh complete" >&2
     return 0
   else
     echo "warning: initial sanctions list refresh failed; run refresh manually before screening" >&2
