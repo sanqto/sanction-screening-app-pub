@@ -38,7 +38,9 @@ prompt_value() {
   local label="$1"
   local default_value="$2"
   local value=""
-  if [[ -t 0 ]]; then
+  if [[ "${SANCTION_INSTALL_NONINTERACTIVE:-0}" == "1" ]]; then
+    value="$default_value"
+  elif [[ -t 0 ]]; then
     read -r -p "$label [$default_value]: " value
   elif [[ -r /dev/tty ]]; then
     read -r -p "$label [$default_value]: " value </dev/tty
@@ -56,6 +58,7 @@ toml_escape() {
 write_initial_config() {
   local config_path="$1"
   local api_default audit_default token_default api_key audit_key eu_token data_dir_toml archive_dir_toml
+  local pl_mswia_fetch_enabled pl_mswia_url
   api_default=""
   audit_default="$(random_hex_32)"
   token_default="dG9rZW4tMjAxNw"
@@ -65,6 +68,8 @@ write_initial_config() {
   eu_token="$(prompt_value "EU FSF token" "$token_default")"
   data_dir_toml="$(toml_escape "$DATA_DIR")"
   archive_dir_toml="$(toml_escape "${LIST_ARCHIVE_DIR:-$DATA_DIR/list-archive}")"
+  pl_mswia_fetch_enabled="${PL_MSWIA_FETCH_ENABLED:-true}"
+  pl_mswia_url="$(toml_escape "${PL_MSWIA_URL:-https://sanqto.com/download/lista-sankcyjna-MSWiA.xml}")"
 
   cat >"$config_path" <<CONFIG
 http_addr = "127.0.0.1:8787"
@@ -88,8 +93,8 @@ un_sc_url = "https://scsanctions.un.org/resources/xml/en/name/consolidated.xml"
 
 # Polish national sanctions list normalized by Sanqto from the official MSWiA
 # XLSX. This source is required for Polish companies.
-pl_mswia_fetch_enabled = true
-pl_mswia_url = "https://sanqto.com/download/lista-sankcyjna-MSWiA.xml"
+pl_mswia_fetch_enabled = $pl_mswia_fetch_enabled
+pl_mswia_url = "$pl_mswia_url"
 
 # UK FCDO UK Sanctions List XML. Only IndividualEntityShip=Individual
 # designations are loaded for natural-person screening.
@@ -247,9 +252,11 @@ tar -xzf "$tmp/$artifact" -C "$tmp"
 
 if [[ "$INSTALL_MODE" == "system" && "$OS" == "Linux" ]]; then
   id "$SERVICE_USER" >/dev/null 2>&1 || useradd --system --home "$DATA_DIR" --shell /usr/sbin/nologin "$SERVICE_USER"
+  install -d -m 0755 "$INSTALL_DIR"
   install -d -m 0755 "$CONFIG_DIR"
   install -d -m 0750 -o "$SERVICE_USER" -g "$SERVICE_USER" "$DATA_DIR"
 else
+  install -d -m 0755 "$INSTALL_DIR"
   install -d -m 0755 "$CONFIG_DIR"
   install -d -m 0755 "$DATA_DIR"
 fi
