@@ -198,11 +198,12 @@ run_demo_match() {
   fi
 }
 
-refresh_and_demo() {
+refresh_lists() {
   if "$INSTALL_DIR/sanction-screening" refresh --config "$CONFIG_DIR/config.toml"; then
-    run_demo_match
+    return 0
   else
     echo "warning: initial sanctions list refresh failed; run refresh manually before screening" >&2
+    return 1
   fi
 }
 
@@ -296,16 +297,17 @@ if [[ ! -f "$CONFIG_DIR/config.toml" ]]; then
   echo "created $CONFIG_DIR/config.toml" >&2
   echo "review compliance_webhook_url and list-source settings before production use" >&2
   echo "" >&2
-  refresh_and_demo
+  refresh_lists || true
   if [[ "$INSTALL_MODE" != "system" && "$OS" == "Darwin" && "$START_SERVICE" == "1" ]]; then
     install_macos_user_launch_agent
   fi
   print_user_next_steps
   print_screen_examples
+  run_demo_match
   exit 0
 fi
 
-refresh_and_demo
+refresh_lists || true
 
 if [[ "$INSTALL_MODE" != "system" ]]; then
   if [[ "$OS" == "Darwin" && "$START_SERVICE" == "1" ]]; then
@@ -318,6 +320,7 @@ if [[ "$INSTALL_MODE" != "system" ]]; then
   echo "" >&2
   echo "To install a system service later:" >&2
   echo "  curl -fsSL https://sanqto.com/install.sh | sudo INSTALL_MODE=system bash" >&2
+  run_demo_match
   exit 0
 fi
 
@@ -346,7 +349,9 @@ UNIT
   systemctl daemon-reload
   systemctl enable --now ${SERVICE_NAME}.service
   echo "sanction-screening installed and started via systemd"
+  print_user_next_steps
   print_screen_examples
+  run_demo_match
 else
   plist="/Library/LaunchDaemons/com.sanqto.sanction-screening.plist"
   cat >"$plist" <<PLIST
@@ -380,5 +385,7 @@ PLIST
   launchctl bootstrap system "$plist"
   launchctl enable system/com.sanqto.sanction-screening
   echo "sanction-screening installed and started via launchd"
+  print_user_next_steps
   print_screen_examples
+  run_demo_match
 fi
