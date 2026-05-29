@@ -55,9 +55,9 @@ openssl rand -hex 32
 openssl rand -hex 32
 ```
 
-Set `api_key` if you want the API to require `X-API-Key`. Leave it empty for
-local deployments without API-key auth. Set the generated second value as
-`audit_hmac_key`.
+The installer generates `api_key` and `audit_hmac_key` by default. Use
+`X-API-Key` for REST calls, or `SANCTION_API_KEY` with `sanction_screen.sh`.
+Leave `api_key` empty only if you intentionally want to disable API-key auth.
 
 EU FSF is enabled by default. For production use, configure a real EU FSF
 token:

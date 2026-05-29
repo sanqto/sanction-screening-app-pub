@@ -59,11 +59,11 @@ write_initial_config() {
   local config_path="$1"
   local api_default audit_default token_default api_key audit_key eu_token data_dir_toml archive_dir_toml
   local pl_mswia_fetch_enabled pl_mswia_url
-  api_default=""
+  api_default="$(random_hex_32)"
   audit_default="$(random_hex_32)"
   token_default="dG9rZW4tMjAxNw"
 
-  api_key="$(prompt_value "API key (empty disables auth)" "$api_default")"
+  api_key="$(prompt_value "API key" "$api_default")"
   audit_key="$(prompt_value "Audit HMAC key" "$audit_default")"
   eu_token="$(prompt_value "EU FSF token" "$token_default")"
   data_dir_toml="$(toml_escape "$DATA_DIR")"
@@ -154,15 +154,30 @@ print_user_next_steps() {
   echo "If $INSTALL_DIR is not in PATH, add it or call the binary with the full path above." >&2
 }
 
+read_config_api_key() {
+  if [[ -f "$CONFIG_DIR/config.toml" ]]; then
+    sed -n 's/^[[:space:]]*api_key[[:space:]]*=[[:space:]]*"\([^"]*\)".*$/\1/p' "$CONFIG_DIR/config.toml" | head -n 1
+  fi
+}
+
 print_screen_examples() {
+  local api_key wrapper_prefix curl_api_header
+  api_key="$(read_config_api_key)"
+  wrapper_prefix=""
+  curl_api_header=""
+  if [[ -n "$api_key" ]]; then
+    wrapper_prefix="SANCTION_API_KEY=\"$api_key\" "
+    curl_api_header="-H 'X-API-Key: $api_key' "
+  fi
+
   echo "" >&2
   echo "Screen examples:" >&2
   echo "1. One-shot CLI:" >&2
   echo "  $INSTALL_DIR/sanction-screening check --config $CONFIG_DIR/config.toml --name \"Ali Darassa\" --dob 1978-09-22 | jq -C" >&2
   echo "2. Demo shell wrapper:" >&2
-  echo "  $INSTALL_DIR/sanction_screen.sh --name \"Ali Darassa\" --dob 1978-09-22 | jq -C" >&2
+  echo "  ${wrapper_prefix}$INSTALL_DIR/sanction_screen.sh --name \"Ali Darassa\" --dob 1978-09-22 | jq -C" >&2
   echo "3. REST API after starting serve:" >&2
-  echo "  curl -sS http://127.0.0.1:8787/v1/screen/person -H 'Content-Type: application/json' -d '{\"first_name\":\"Ali\",\"last_name\":\"Darassa\",\"dob\":\"1978-09-22\",\"citizenship\":\"\",\"external_ref\":\"demo-local-001\"}' | jq -C" >&2
+  echo "  curl -sS http://127.0.0.1:8787/v1/screen/person -H 'Content-Type: application/json' ${curl_api_header}-d '{\"first_name\":\"Ali\",\"last_name\":\"Darassa\",\"dob\":\"1978-09-22\",\"citizenship\":\"\",\"external_ref\":\"demo-local-001\"}' | jq -C" >&2
 }
 
 run_demo_match() {
