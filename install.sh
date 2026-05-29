@@ -155,6 +155,17 @@ print_user_next_steps() {
   echo "If $INSTALL_DIR is not in PATH, add it or call the binary with the full path above." >&2
 }
 
+print_screen_examples() {
+  echo "" >&2
+  echo "Screen examples:" >&2
+  echo "1. One-shot CLI:" >&2
+  echo "  $INSTALL_DIR/sanction-screening check --config $CONFIG_DIR/config.toml --name \"Ali Darassa\" --dob 1978-09-22 | jq -C" >&2
+  echo "2. Demo shell wrapper:" >&2
+  echo "  $INSTALL_DIR/sanction_screen.sh --name \"Ali Darassa\" --dob 1978-09-22 | jq -C" >&2
+  echo "3. REST API after starting serve:" >&2
+  echo "  curl -sS http://127.0.0.1:8787/v1/screen/person -H 'Content-Type: application/json' -d '{\"first_name\":\"Ali\",\"last_name\":\"Darassa\",\"dob\":\"1978-09-22\",\"citizenship\":\"\",\"external_ref\":\"demo-local-001\"}' | jq -C" >&2
+}
+
 run_demo_match() {
   local status
   echo "" >&2
@@ -291,6 +302,7 @@ if [[ ! -f "$CONFIG_DIR/config.toml" ]]; then
     install_macos_user_launch_agent
   fi
   print_user_next_steps
+  print_screen_examples
   exit 0
 fi
 
@@ -303,9 +315,7 @@ if [[ "$INSTALL_MODE" != "system" ]]; then
   echo "sanction-screening installed in user mode" >&2
   echo "" >&2
   print_user_next_steps
-  echo "Test:" >&2
-  echo "  curl -sS http://127.0.0.1:8787/healthz" >&2
-  echo "  $INSTALL_DIR/sanction-screening check --config $CONFIG_DIR/config.toml --name \"Ali Darassa\" --dob 1978-09-22 | jq" >&2
+  print_screen_examples
   echo "" >&2
   echo "To install a system service later:" >&2
   echo "  curl -fsSL https://sanqto.com/install.sh | sudo INSTALL_MODE=system bash" >&2
@@ -337,6 +347,7 @@ UNIT
   systemctl daemon-reload
   systemctl enable --now ${SERVICE_NAME}.service
   echo "sanction-screening installed and started via systemd"
+  print_screen_examples
 else
   plist="/Library/LaunchDaemons/com.sanqto.sanction-screening.plist"
   cat >"$plist" <<PLIST
@@ -370,4 +381,5 @@ PLIST
   launchctl bootstrap system "$plist"
   launchctl enable system/com.sanqto.sanction-screening
   echo "sanction-screening installed and started via launchd"
+  print_screen_examples
 fi
