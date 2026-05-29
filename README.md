@@ -59,15 +59,17 @@ Set `api_key` if you want the API to require `X-API-Key`. Leave it empty for
 local deployments without API-key auth. Set the generated second value as
 `audit_hmac_key`.
 
-For EU FSF production use, configure a real EU FSF token:
+EU FSF is enabled by default. For production use, configure a real EU FSF
+token:
 
 ```toml
 eu_fsf_fetch_enabled = true
 eu_fsf_token = "..."
-un_sc_fetch_enabled = false
+un_sc_fetch_enabled = true
 ```
 
-When EUROPA is unavailable, use the UN SC fallback:
+If EUROPA is unavailable and you need the appliance to keep running from other
+sources, temporarily disable EU FSF:
 
 ```toml
 eu_fsf_fetch_enabled = false

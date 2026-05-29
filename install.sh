@@ -81,13 +81,12 @@ compliance_webhook_url = ""
 refresh_interval_seconds = 3600
 stale_list_max_hours = 24
 
-eu_fsf_fetch_enabled = false
+eu_fsf_fetch_enabled = true
 eu_fsf_rss_url = "https://webgate.ec.europa.eu/fsd/fsf/public/rss"
 eu_fsf_url = "https://webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content"
 eu_fsf_token = "$(toml_escape "$eu_token")"
 
-# Temporary fallback while EUROPA is unavailable. UN SC is not a replacement
-# for the EU FSF compliance source, but it lets the appliance run and test.
+# UN Security Council consolidated list. This is loaded alongside EU FSF.
 un_sc_fetch_enabled = true
 un_sc_url = "https://scsanctions.un.org/resources/xml/en/name/consolidated.xml"
 
