@@ -59,6 +59,10 @@ The installer generates `api_key` and `audit_hmac_key` by default. Use
 `X-API-Key` for REST calls, or `SANCTION_API_KEY` with `sanction_screen.sh`.
 Leave `api_key` empty only if you intentionally want to disable API-key auth.
 
+Fresh installs are non-interactive. To provide your own values, set
+`SANCTION_INSTALL_API_KEY`, `SANCTION_INSTALL_AUDIT_HMAC_KEY`, or
+`EU_FSF_TOKEN` before running `install.sh`.
+
 EU FSF is enabled by default. For production use, configure a real EU FSF
 token:
 

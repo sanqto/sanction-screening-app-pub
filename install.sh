@@ -34,23 +34,6 @@ random_hex_32() {
   fi
 }
 
-prompt_value() {
-  local label="$1"
-  local default_value="$2"
-  local value=""
-  if [[ "${SANCTION_INSTALL_NONINTERACTIVE:-0}" == "1" ]]; then
-    value="$default_value"
-  elif [[ -t 0 ]]; then
-    read -r -p "$label [$default_value]: " value
-  elif [[ -r /dev/tty ]]; then
-    read -r -p "$label [$default_value]: " value </dev/tty
-  fi
-  if [[ -z "$value" ]]; then
-    value="$default_value"
-  fi
-  printf '%s' "$value"
-}
-
 toml_escape() {
   printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g'
 }
@@ -63,9 +46,9 @@ write_initial_config() {
   audit_default="$(random_hex_32)"
   token_default="dG9rZW4tMjAxNw"
 
-  api_key="$(prompt_value "API key" "$api_default")"
-  audit_key="$(prompt_value "Audit HMAC key" "$audit_default")"
-  eu_token="$(prompt_value "EU FSF token" "$token_default")"
+  api_key="${SANCTION_INSTALL_API_KEY:-$api_default}"
+  audit_key="${SANCTION_INSTALL_AUDIT_HMAC_KEY:-$audit_default}"
+  eu_token="${EU_FSF_TOKEN:-$token_default}"
   data_dir_toml="$(toml_escape "$DATA_DIR")"
   archive_dir_toml="$(toml_escape "${LIST_ARCHIVE_DIR:-$DATA_DIR/list-archive}")"
   pl_mswia_fetch_enabled="${PL_MSWIA_FETCH_ENABLED:-true}"
