@@ -23,6 +23,7 @@ User mode creates:
 - `$HOME/.local/share/sanction-screening/`
 - `$HOME/.local/bin/sanction-screening`
 - `$HOME/.local/bin/sanction_screen.sh`
+- `$HOME/.local/bin/sanction_screen_organization.sh`
 
 Run the server manually:
 
@@ -64,7 +65,7 @@ Fresh installs are non-interactive. To provide your own values, set
 `EU_FSF_TOKEN` before running `install.sh`.
 
 EU FSF is enabled by default. For production use, configure a real EU FSF
-token:
+token. Natural persons and organizations are loaded from this source:
 
 ```toml
 eu_fsf_fetch_enabled = true
@@ -89,6 +90,9 @@ pl_mswia_fetch_enabled = true
 pl_mswia_url = "https://sanqto.com/download/lista-sankcyjna-MSWiA.xml"
 ```
 
+Organization screening currently loads companies from EU FSF, UN SC, UK
+FCDO, and PL MSWiA. Additional organization sources are planned.
+
 For UK screening, keep the UK FCDO source enabled:
 
 ```toml
@@ -101,6 +105,8 @@ uk_fcdo_url = "https://sanctionslist.fcdo.gov.uk/docs/UK-Sanctions-List.xml"
 ```bash
 sanction_screen.sh --name "Ali Darassa" --dob 1978-09-22 | jq
 sanction_screen.sh --name "Ali Darassa" | jq
+sanction-screening check-organization --config "$HOME/.config/sanction-screening/config.toml" --name "GO SPORT POLSKA" --identifier NIP:9511861015 | jq
+sanction_screen_organization.sh --name "GO SPORT POLSKA" --identifier NIP:9511861015 --country PL | jq
 ```
 
 The API returns `MATCH`, `POSSIBLE`, or `CLEAR` and pins `list_versions` in every
@@ -109,10 +115,12 @@ response and audit row.
 ## Endpoints
 
 - `POST /v1/screen/person`
+- `POST /v1/screen/organization`
 - `GET /healthz`
 - `GET /readyz`
 - `GET /v1/lists/status`
 - `GET /v1/audit`
+- `GET /v1/audit/organizations`
 - `POST /v1/admin/refresh`
 
 See [docs/openapi.json](docs/openapi.json).

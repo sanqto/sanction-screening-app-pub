@@ -161,6 +161,10 @@ print_screen_examples() {
   echo "  ${wrapper_prefix}$INSTALL_DIR/sanction_screen.sh --name \"Ali Darassa\" --dob 1978-09-22 | jq -C" >&2
   echo "3. REST API after starting serve:" >&2
   echo "  curl -sS http://127.0.0.1:8787/v1/screen/person -H 'Content-Type: application/json' ${curl_api_header}-d '{\"first_name\":\"Ali\",\"last_name\":\"Darassa\",\"dob\":\"1978-09-22\",\"citizenship\":\"\",\"external_ref\":\"demo-local-001\"}' | jq -C" >&2
+  echo "4. Organization one-shot CLI:" >&2
+  echo "  $INSTALL_DIR/sanction-screening check-organization --config $CONFIG_DIR/config.toml --name \"GO SPORT POLSKA\" --identifier NIP:9511861015 | jq -C" >&2
+  echo "5. Organization REST wrapper:" >&2
+  echo "  ${wrapper_prefix}$INSTALL_DIR/sanction_screen_organization.sh --name \"GO SPORT POLSKA\" --identifier NIP:9511861015 --country PL | jq -C" >&2
 }
 
 run_demo_match() {
@@ -327,6 +331,7 @@ else
 fi
 install -m 0755 "$tmp/sanction-screening" "$INSTALL_DIR/sanction-screening"
 install -m 0755 "$tmp/sanction_screen.sh" "$INSTALL_DIR/sanction_screen.sh"
+install -m 0755 "$tmp/sanction_screen_organization.sh" "$INSTALL_DIR/sanction_screen_organization.sh"
 
 if [[ ! -f "$CONFIG_DIR/config.toml" ]]; then
   write_initial_config "$CONFIG_DIR/config.toml"

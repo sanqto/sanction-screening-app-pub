@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Sanction Screening API",
-    "version": "0.1.7"
+    "version": "0.2.0"
   },
   "paths": {
     "/healthz": {
@@ -23,10 +23,13 @@
               "application/json": {
                 "example": {
                   "status": "ready",
-                  "entity_count": 5124,
+                  "entity_count": 9096,
                   "entity_counts": {
                     "eu": 4392,
-                    "un": 732
+                    "un": 732,
+                    "pl": 435,
+                    "us": 4565,
+                    "uk": 3972
                   },
                   "list_versions": {
                     "eu": {
@@ -42,6 +45,27 @@
                       "source_version": "2026-05-09T23:00:02.101Z",
                       "content_sha256": "51e414dd23e84cf63917374197c3a74c353cb578bb55e3a6469d87bfc06e286c",
                       "archive_path": "/Users/alex/.local/share/sanction-screening/list-archive/UN_SC/20260511T143331Z-51e414dd23e84cf6.xml"
+                    },
+                    "pl": {
+                      "updated_at": "2026-05-11T18:36:19.243635+00:00",
+                      "fetched_at": "2026-05-11T18:40:10.100000+00:00",
+                      "source_version": "809509c95e81e0d56eaad165368792f287cf560490d025aae685147375815461",
+                      "content_sha256": "e692cff58a7bab08eca1bf90edacae6eadee2a353e4a6125c02f8cb5a31af5d0",
+                      "archive_path": "/Users/alex/.local/share/sanction-screening/list-archive/PL_MSWIA/20260511T184010Z-e692cff58a7bab08.xml"
+                    },
+                    "us": {
+                      "updated_at": "05/08/2026",
+                      "fetched_at": "2026-05-13T22:00:00.000000+00:00",
+                      "source_version": "05/08/2026",
+                      "content_sha256": "9f4d2a...",
+                      "archive_path": "/Users/alex/.local/share/sanction-screening/list-archive/US_OFAC/20260513T220000Z-9f4d2a.xml"
+                    },
+                    "uk": {
+                      "updated_at": "11/05/2026",
+                      "fetched_at": "2026-05-13T22:11:14.898165+00:00",
+                      "source_version": "11/05/2026",
+                      "content_sha256": "690b74...",
+                      "archive_path": "/Users/alex/.local/share/sanction-screening/list-archive/UK_FCDO/20260513T221114Z-690b74.xml"
                     }
                   }
                 }
@@ -84,15 +108,17 @@
         },
         "responses": {
           "200": {
-            "description": "MATCH, POSSIBLE, or CLEAR decision with pinned list_versions. Each source includes updated_at, fetched_at, source_version, and content_sha256 for audit evidence.",
+            "description": "MATCH, POSSIBLE, or CLEAR decision with pinned list_versions and the full set of matched_sources (one row per sanctions list the subject is on). Each list_versions source includes updated_at, fetched_at, source_version, and content_sha256 for audit evidence.",
             "content": {
               "application/json": {
                 "example": {
                   "decision": "MATCH",
                   "request_id": "ea5b2339-dff9-43e0-af99-c6f84ac9471f",
-                  "matched_source": "EU_FSF",
-                  "matched_entity_id": 8053,
-                  "dob_precision": "date",
+                  "matched_sources": [
+                    {"source": "EU_FSF", "entity_id": 8053, "dob_precision": "date"},
+                    {"source": "US_OFAC", "entity_id": 12174, "dob_precision": "date"},
+                    {"source": "UK_FCDO", "entity_id": 6909, "dob_precision": "date"}
+                  ],
                   "list_versions": {
                     "eu": {
                       "updated_at": "Fri, 08 May 2026 14:10:10 GMT",
@@ -107,9 +133,95 @@
                       "source_version": "2026-05-09T23:00:02.101Z",
                       "content_sha256": "51e414dd23e84cf63917374197c3a74c353cb578bb55e3a6469d87bfc06e286c",
                       "archive_path": "/Users/alex/.local/share/sanction-screening/list-archive/UN_SC/20260511T085117Z-51e414dd23e84cf6.xml"
+                    },
+                    "pl": {
+                      "updated_at": "2026-05-11T18:36:19.243635+00:00",
+                      "fetched_at": "2026-05-11T18:40:10.100000+00:00",
+                      "source_version": "809509c95e81e0d56eaad165368792f287cf560490d025aae685147375815461",
+                      "content_sha256": "e692cff58a7bab08eca1bf90edacae6eadee2a353e4a6125c02f8cb5a31af5d0",
+                      "archive_path": "/Users/alex/.local/share/sanction-screening/list-archive/PL_MSWIA/20260511T184010Z-e692cff58a7bab08.xml"
+                    },
+                    "us": {
+                      "updated_at": "05/08/2026",
+                      "fetched_at": "2026-05-13T22:00:00.000000+00:00",
+                      "source_version": "05/08/2026",
+                      "content_sha256": "9f4d2a...",
+                      "archive_path": "/Users/alex/.local/share/sanction-screening/list-archive/US_OFAC/20260513T220000Z-9f4d2a.xml"
+                    },
+                    "uk": {
+                      "updated_at": "11/05/2026",
+                      "fetched_at": "2026-05-13T22:11:14.898165+00:00",
+                      "source_version": "11/05/2026",
+                      "content_sha256": "690b74...",
+                      "archive_path": "/Users/alex/.local/share/sanction-screening/list-archive/UK_FCDO/20260513T221114Z-690b74.xml"
                     }
                   },
                   "algorithm_version": "person-dob-strict-v1"
+                }
+              }
+            }
+          },
+          "401": {"description": "Unauthorized"},
+          "422": {"description": "Invalid screening input"}
+        }
+      }
+    },
+    "/v1/screen/organization": {
+      "post": {
+        "security": [{"apiKey": []}],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": {"type": "string"},
+                  "identifiers": {
+                    "type": "array",
+                    "description": "Optional registry identifiers. Exact identifier match returns MATCH even when the supplied name differs.",
+                    "items": {
+                      "type": "object",
+                      "required": ["kind", "value"],
+                      "properties": {
+                        "kind": {"type": "string", "example": "NIP"},
+                        "value": {"type": "string", "example": "9511861015"}
+                      }
+                    }
+                  },
+                  "country": {"type": "string"},
+                  "external_ref": {"type": "string"}
+                }
+              },
+              "example": {
+                "name": "GO SPORT POLSKA",
+                "identifiers": [{"kind": "NIP", "value": "9511861015"}],
+                "country": "PL",
+                "external_ref": "demo-org-match-001"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "MATCH on exact registry identifier or exact normalized name, POSSIBLE on similar canonical name, otherwise CLEAR. v0.2 loads organizations from EU FSF, UN SC, UK FCDO, and PL MSWiA.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "decision": "MATCH",
+                  "request_id": "8fe6fe31-6873-463c-992f-071382d2c263",
+                  "matched_organizations": [
+                    {
+                      "source": "PL_MSWIA",
+                      "organization_id": 42,
+                      "match_type": "identifier",
+                      "matched_name": "GO SPORT POLSKA Sp. z o.o.",
+                      "matched_identifier": {"kind": "NIP", "value": "9511861015"}
+                    }
+                  ],
+                  "list_versions": {},
+                  "algorithm_version": "organization-name-id-v1"
                 }
               }
             }
@@ -123,7 +235,7 @@
       "get": {
         "security": [{"apiKey": []}],
         "responses": {
-          "200": {"description": "EU FSF source metadata"}
+          "200": {"description": "Source metadata for enabled EU FSF, UN SC, PL MSWiA, US OFAC SDN, and UK FCDO lists"}
         }
       }
     },
@@ -133,6 +245,15 @@
         "parameters": [{"name": "limit", "in": "query", "schema": {"type": "integer", "default": 20, "minimum": 1, "maximum": 100}}],
         "responses": {
           "200": {"description": "Append-only screening audit rows"}
+        }
+      }
+    },
+    "/v1/audit/organizations": {
+      "get": {
+        "security": [{"apiKey": []}],
+        "parameters": [{"name": "limit", "in": "query", "schema": {"type": "integer", "default": 20, "minimum": 1, "maximum": 100}}],
+        "responses": {
+          "200": {"description": "Append-only organization screening audit rows"}
         }
       }
     },
